@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Manager extends Employe {
 
 	@OneToMany(mappedBy = "manager")
-	@JsonIgnoreProperties("manager")
+	@JsonIgnoreProperties("manager") // jason donne les info sans l'equipe (dependencies) but we have puted nothings in technicien for havins the name of his manager 
 	private Set<Technicien> equipe = new HashSet<>();
 
 	public Manager(){

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type") // dans la requete post( create commercail) la clé type définie le type d'emplpyé 
 @JsonSubTypes({@JsonSubTypes.Type(value = Technicien.class, name = "technicien"),
 		@JsonSubTypes.Type(value = Commercial.class, name = "commercial"),
 		@JsonSubTypes.Type(value = Manager.class, name = "manager")})
@@ -21,7 +21,7 @@ public abstract class Employe implements Serializable {
 	private static final long serialVersionUID = -633481376872387016L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String nom;
