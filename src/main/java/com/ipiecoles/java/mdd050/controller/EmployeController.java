@@ -1,5 +1,8 @@
 package com.ipiecoles.java.mdd050.controller;
 
+import java.util.List;
+import java.util.Set;
+
 import org.apache.coyote.http11.filters.SavedRequestInputFilter;
 import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ipiecoles.java.mdd050.model.Commercial;
 import com.ipiecoles.java.mdd050.model.Employe;
+import com.ipiecoles.java.mdd050.model.Manager;
+import com.ipiecoles.java.mdd050.model.Technicien;
 import com.ipiecoles.java.mdd050.repository.EmployeRepository;
+import com.ipiecoles.java.mdd050.repository.ManagerRepository;
+import com.ipiecoles.java.mdd050.repository.TechnicienRepository;
 
 @RestController
 @RequestMapping(value = "/employes")
@@ -26,6 +33,10 @@ public class EmployeController {
 	
 	@Autowired
 	EmployeRepository employesRepository;
+	@Autowired
+	ManagerRepository maneRepository;
+	@Autowired
+	TechnicienRepository technicienRepository; 
 	
 	@RequestMapping(value = "/count" , method = RequestMethod.GET)
 	public Long countEmployes() {	
@@ -85,4 +96,5 @@ public class EmployeController {
 				employesRepository.deleteById(id);
 
 	}
+
 }
