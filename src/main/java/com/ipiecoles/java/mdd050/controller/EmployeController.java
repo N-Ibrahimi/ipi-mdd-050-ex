@@ -1,10 +1,8 @@
 package com.ipiecoles.java.mdd050.controller;
 
-import java.util.List;
-import java.util.Set;
 
-import org.apache.coyote.http11.filters.SavedRequestInputFilter;
-import org.apache.logging.log4j.message.ReusableMessage;
+import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,11 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.ipiecoles.java.mdd050.model.Commercial;
 import com.ipiecoles.java.mdd050.model.Employe;
-import com.ipiecoles.java.mdd050.model.Manager;
-import com.ipiecoles.java.mdd050.model.Technicien;
 import com.ipiecoles.java.mdd050.repository.EmployeRepository;
 import com.ipiecoles.java.mdd050.repository.ManagerRepository;
 import com.ipiecoles.java.mdd050.repository.TechnicienRepository;
@@ -44,23 +39,21 @@ public class EmployeController {
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET )
-	public Employe getEmploye(@PathVariable("id") Long id_emp) {
-		if(id_emp!=null) {
-			Employe emp = employesRepository.findById(id_emp).get();
-			System.out.println(emp);
-			return emp;
-		}else {
-			return null;
-		}
-	}
+	public Employe getEmploye(@PathVariable("id") Long id_emp){
+			Optional<Employe> emp = employesRepository.findById(id_emp);
+			if(!emp.isPresent()) {
+				throw new EntityNotFoundException("l'Employé d'indentifiant "+id_emp+" n'existe pas ! ");
+				}
+			return emp.get();
+			}
 	
 	@RequestMapping(value = " ", params = "matricule", method = RequestMethod.GET)
 	public Employe getbyMatricule(@RequestParam(value ="matricule")String matricule) {
 		Employe emp=employesRepository.findByMatricule(matricule);
-		if(emp!=null) {
-			return emp;
+		if(emp==null) {
+			throw new EntityNotFoundException("l'Employé de Matricule "+matricule+" n'existe pas ! ");
 		}else {
-			return null;
+			return emp;
 		}
 	}
 	
