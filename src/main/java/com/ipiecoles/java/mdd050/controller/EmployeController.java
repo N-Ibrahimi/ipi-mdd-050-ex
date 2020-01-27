@@ -1,6 +1,7 @@
 package com.ipiecoles.java.mdd050.controller;
 
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.theme.ThemeChangeInterceptor;
+
+import com.ipiecoles.java.mdd050.exception.GlobalExeptionHandler;
 import com.ipiecoles.java.mdd050.model.Commercial;
 import com.ipiecoles.java.mdd050.model.Employe;
 import com.ipiecoles.java.mdd050.repository.EmployeRepository;
@@ -25,7 +29,7 @@ import com.ipiecoles.java.mdd050.repository.TechnicienRepository;
 @RestController
 @RequestMapping(value = "/employes")
 public class EmployeController {
-	
+	public static final String REGEX_MATRICUL="^[MTC][0-9] {5}$";
 	@Autowired
 	EmployeRepository employesRepository;
 	@Autowired
@@ -49,8 +53,11 @@ public class EmployeController {
 	
 	@RequestMapping(value = " ", params = "matricule", method = RequestMethod.GET)
 	public Employe getbyMatricule(@RequestParam(value ="matricule")String matricule) {
+		if(matricule==null || !matricule.matches(REGEX_MATRICUL)) {
+			throw new IllegalArgumentException("le "+matricule+" n'est pas bon ! ");
+		}
 		Employe emp=employesRepository.findByMatricule(matricule);
-		if(emp==null) {
+		if(emp==null ) {
 			throw new EntityNotFoundException("l'Employé de Matricule "+matricule+" n'existe pas ! ");
 		}else {
 			return emp;
@@ -63,12 +70,36 @@ public class EmployeController {
 			@RequestParam(value = "size", defaultValue = "10")Integer size, 
 			@RequestParam(value = "sortProperty", defaultValue = "matricule") String sortProperty, 
 			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDireciton){
+		
+		Field[] fields=Employe.class.getDeclaredFields(); // requpérer les champ de notre classe et voir est ce que la column existe de notre base ou non
+		Boolean found=false;
+		for(Field f: fields) {
+			if(f.getName().equals(sortProperty)) {
+				found=true;
+				break;
+			}
+		}
+		if(!found) {
+			throw new IllegalArgumentException("Le champ " + sortProperty + " n'existe pas.");
+		}
+		if(page < 0) {
+			throw new IllegalArgumentException("La page ne peut pas être moins de zero ");
+		}
+		Pageable pageable = PageRequest.of(page,size,Sort.Direction.fromString(sortDireciton), sortProperty);
+		Long count=employesRepository.count();
+		if(size >50){
+			throw new  EntityNotFoundException(" la taille de size ne peut pas être supérieur à 50 ");
+		} else if( page > (count/size)+1) {
+			throw new  EntityNotFoundException(" la taille de page "+ page +" ne correspond pas à la size défini "+ size);
+		}else {
+			
+			return employesRepository.findAll(pageable);
+		}
+		
 		/*
 		 * @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDireciton){
 		 * Pageable pageable = PageRequest.of(page,size,sortDireciton, sortProperty); if we define the sort direction by default, we cas use this code 
 		 */
-		Pageable pageable = PageRequest.of(page,size,Sort.Direction.fromString(sortDireciton), sortProperty);
-		return employesRepository.findAll(pageable);
 	}
 	
 	

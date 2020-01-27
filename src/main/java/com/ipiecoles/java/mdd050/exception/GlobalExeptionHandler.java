@@ -2,8 +2,8 @@ package com.ipiecoles.java.mdd050.exception;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +27,19 @@ public class GlobalExeptionHandler extends ResponseEntityExceptionHandler {
 		return "La valeur '"+ e.getValue() + " est incorrect pour le paramètre "+ e.getName() +  " '.";
 	}
 	
+	//PropertyReferenceException
+	
+	@ExceptionHandler(PropertyReferenceException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public String handlerpropertyRefrenceExeption(PropertyReferenceException e) {
+		return "La valeur '"+ e.getPropertyName() + "' est incorrect pour le paramètre.";
+	}
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public String handlerIllegalArgumentExeption(IllegalArgumentException e) {
+		return e.getMessage();
+	}
 }
 
 
