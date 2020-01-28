@@ -2,10 +2,18 @@ package com.ipiecoles.java.mdd050.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.ipiecoles.java.mdd050.exception.salaire;
+
 import org.hibernate.annotations.Type;
 import org.joda.time.LocalDate;
-
 import javax.persistence.*;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -23,17 +31,23 @@ public abstract class Employe implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	@NotBlank(message = "this field con't be blank") //not valid exception like error 
+	@Size(max=50)
 	private String nom;
-	
+	@Size(min=3, max=50)
 	private String prenom;
-
+	@Pattern(regexp="^[MTC][0-9]{5}$", message = "matricule ne respect pas MTC et suivie de 5 chiffres")
 	private String matricule;
-
+	@Past
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDate")
 	private LocalDate dateEmbauche;
-	
+	@PositiveOrZero
+	//@DecimalMin(Double.toString(Entreprise.SALAIRE_BASE))
+	@salaire
 	private Double salaire = Entreprise.SALAIRE_BASE;
+	
+	//@Email
+	//@Formula
 	
 	public Employe() {
 		

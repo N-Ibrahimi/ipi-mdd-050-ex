@@ -4,28 +4,37 @@ package com.ipiecoles.java.mdd050.controller;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.theme.ThemeChangeInterceptor;
 
-import com.ipiecoles.java.mdd050.exception.GlobalExeptionHandler;
 import com.ipiecoles.java.mdd050.model.Commercial;
 import com.ipiecoles.java.mdd050.model.Employe;
 import com.ipiecoles.java.mdd050.repository.EmployeRepository;
 import com.ipiecoles.java.mdd050.repository.ManagerRepository;
 import com.ipiecoles.java.mdd050.repository.TechnicienRepository;
 
+@Validated
 @RestController
 @RequestMapping(value = "/employes")
 public class EmployeController {
@@ -51,11 +60,18 @@ public class EmployeController {
 			return emp.get();
 			}
 	
-	@RequestMapping(value = " ", params = "matricule", method = RequestMethod.GET)
-	public Employe getbyMatricule(@RequestParam(value ="matricule")String matricule) {
-		if(matricule==null || !matricule.matches(REGEX_MATRICUL)) {
-			throw new IllegalArgumentException("le "+matricule+" n'est pas bon ! ");
-		}
+	/* 2nd solution pour verifier la validation de getBy matricule
+  	if(matricule==null || !matricule.matches(REGEX_MATRICUL)) {
+	throw new IllegalArgumentException("le "+matricule+" n'est pas bon ! ");
+	}
+ */
+
+	
+	@GetMapping(value = "", params = "matricule")
+	public Employe getbyMatricule(
+			@NotBlank 
+			@Pattern(regexp = REGEX_MATRICUL) // les validates doivent être avant @request param 
+			@RequestParam(value ="matricule")String matricule) {
 		Employe emp=employesRepository.findByMatricule(matricule);
 		if(emp==null ) {
 			throw new EntityNotFoundException("l'Employé de Matricule "+matricule+" n'existe pas ! ");
@@ -103,14 +119,22 @@ public class EmployeController {
 	}
 	
 	
-	@RequestMapping(method = RequestMethod.POST, value = "")
-	public Employe createEmploye(@RequestBody Commercial commercial){
-		return employesRepository.save(commercial);
+	@RequestMapping(value = "", method=RequestMethod.POST)
+	public Employe createEmploye(@Valid @RequestBody Commercial commercial, BindingResult bindingResult){
+		//@vaild must be befor @requestbody 
+		//@ResponseStatus
+		//@ExceptionHandler
+		//method argument not valid exception if the valid is not respected 
+		//if(bindingResult.hasErrors()) {
+				return commercial;
+		//}else {
+		//	return employesRepository.save(commercial);
+		//}
 	}
 	
 
 	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
-	public Employe ModifyEmploye(@RequestBody Employe employe, @PathVariable(value = "id") Long id){
+	public Employe ModifyEmploye(@Valid @RequestBody Employe employe, @PathVariable(value = "id") Long id){
 		return employesRepository.save(employe);
 	}
 	
